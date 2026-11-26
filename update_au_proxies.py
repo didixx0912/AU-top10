@@ -1,21 +1,308 @@
-export default {
-  async fetch(request) {
-    const path = new URL(request.url).pathname.toLowerCase();
-    const isCN = path === "/cn";
-    const file = isCN ? "cn_top10_clash.yaml" : "au_top10_clash.yaml";
-    const name = isCN ? "CN-Top10.yaml" : "AU-Top10.yaml";
-    const url = "https://raw.githubusercontent.com/didixx0912/AU-top10/main/" + file;
-    const res = await fetch(url, { cf: { cacheTtl: 600, cacheEverything: true } });
-    if (!res.ok) {
-      return new Response("Upstream error: " + res.status, { status: 502 });
+import concurrent.futures
+import re
+import time
+import requests
+import yaml
+from bs4 import BeautifulSoup
+
+TARGETS = [
+    ("AU", "au_top10_clash.yaml"),
+    ("CN", "cn_top10_clash.yaml"),
+]
+UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+
+ISP_KEYWORDS_BY_COUNTRY = {
+    "CN": ("chinanet", "china telecom", "chinatelecom", "china unicom", "china169", "china mobile", "cmcc", "cernet", "cstnet", "cncgroup", "tietong", "dr.peng"),
+    "AU": ("aussie", "telstra", "optus", "tpg", "vocus", "internode", "iinet", "superloop", "aussie fibre", "dicker", "intervolve", "aapt", "vodafone"),
+}
+
+
+def add_proxy(pool, seen, ip, port, ptype, anon="Unknown"):
+    ptype = ptype.lower().strip()
+    if ptype == "http https":
+        ptype = "https"
+    if ptype not in ("http", "https", "socks5"):
+        return
+    if not ip or not str(port).isdigit():
+        return
+    port = int(port)
+    key = (ip, port, ptype)
+    if key not in seen:
+        seen.add(key)
+        pool.append({"ip": ip, "port": port, "type": ptype, "anonymity": anon})
+
+
+def fetch_freeproxy_world(country_code, pool, seen, max_pages=5):
+    url_tpl = f"https://www.freeproxy.world/?type=&anonymity=&country={country_code}&speed=&port=&page={{page}}"
+    for page in range(1, max_pages + 1):
+        try:
+            r = requests.get(url_tpl.format(page=page), headers={"User-Agent": UA}, timeout=15)
+            r.raise_for_status()
+            soup = BeautifulSoup(r.text, "html.parser")
+            table = soup.find("table")
+            if not table:
+                continue
+            for tr in table.find_all("tr"):
+                cols = [c.get_text(" ", strip=True) for c in tr.find_all("td")]
+                if len(cols) >= 8:
+                    add_proxy(pool, seen, cols[0], cols[1], cols[5], cols[6])
+        except Exception as e:
+            print(f"[{country_code} FreeProxyWorld p{page}] error: {e}")
+
+
+def fetch_proxyscrape(country_code, pool, seen):
+    url = f"https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&proxy_format=protocolipport&format=text&country={country_code.lower()}"
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=15)
+        r.raise_for_status()
+        for line in r.text.splitlines():
+            m = re.match(r"^(https?|socks5)://([0-9.]+):(\d+)$", line.strip(), re.I)
+            if m:
+                add_proxy(pool, seen, m.group(2), m.group(3), m.group(1), "Unknown")
+    except Exception as e:
+        print(f"[{country_code} ProxyScrape] error: {e}")
+
+
+def fetch_free_proxy_list(country_code, pool, seen):
+    for url in ("https://free-proxy-list.net/", "https://www.socks-proxy.net/"):
+        try:
+            r = requests.get(url, headers={"User-Agent": UA}, timeout=15)
+            r.raise_for_status()
+            soup = BeautifulSoup(r.text, "html.parser")
+            table = soup.find("table")
+            if not table:
+                continue
+            for tr in table.select("tbody tr"):
+                cols = [c.get_text(" ", strip=True) for c in tr.find_all("td")]
+                if len(cols) >= 7 and cols[2].upper() == country_code:
+                    if "socks" in url:
+                        ptype = "socks5" if "socks5" in cols[4].lower() else "http"
+                        anon = cols[4]
+                    else:
+                        ptype = "https" if cols[6].lower() == "yes" else "http"
+                        anon = "High" if "elite" in cols[4].lower() else cols[4]
+                    add_proxy(pool, seen, cols[0], cols[1], ptype, anon)
+        except Exception as e:
+            print(f"[{country_code} FreeProxyList {url}] error: {e}")
+
+
+def fetch_spys_one(country_code, pool, seen):
+    url = f"https://spys.one/free-proxy-list/{country_code}/"
+    try:
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=15)
+        r.raise_for_status()
+        html = r.text
+        vars_map = {}
+        for m in re.finditer(r"([A-Za-z0-9_]+)=([0-9A-Za-z_^]+);", html):
+            name, expr = m.group(1), m.group(2)
+            parts = expr.split("^")
+            if len(parts) == 1 and parts[0].isdigit():
+                vars_map[name] = int(parts[0])
+            elif len(parts) == 2:
+                v1 = int(parts[0]) if parts[0].isdigit() else vars_map.get(parts[0])
+                v2 = int(parts[1]) if parts[1].isdigit() else vars_map.get(parts[1])
+                if v1 is not None and v2 is not None:
+                    vars_map[name] = v1 ^ v2
+
+        soup = BeautifulSoup(html, "html.parser")
+        for tr in soup.select("tr.spy1x, tr.spy1xx"):
+            row_html = str(tr)
+            ip_m = re.search(r"(\d{1,3}(?:\.\d{1,3}){3})", row_html)
+            port_m = re.search(r'document\.write\(":"\+([^)]+)\)', row_html)
+            if not ip_m or not port_m:
+                continue
+            ip = ip_m.group(1)
+            digits = []
+            for pair in re.findall(r"\(([^)]+)\)", port_m.group(1)):
+                a_b = pair.split("^")
+                if len(a_b) == 2 and a_b[0] in vars_map and a_b[1] in vars_map:
+                    digits.append(str(vars_map[a_b[0]] ^ vars_map[a_b[1]]))
+            port = "".join(digits)
+            if not port.isdigit():
+                continue
+            text = tr.get_text(" ", strip=True).upper()
+            ptype = "socks5" if "SOCKS5" in text else ("https" if "HTTPS" in text else "http")
+            anon = "High" if ("HIA" in text or "ANM" in text) else "No"
+            add_proxy(pool, seen, ip, port, ptype, anon)
+    except Exception as e:
+        print(f"[{country_code} Spys.one] error: {e}")
+
+
+def test_connectivity(country_code, proxy):
+    ptype = proxy["type"]
+    scheme = "socks5h" if ptype == "socks5" else ptype
+    proxy_url = f"{scheme}://{proxy['ip']}:{proxy['port']}"
+    proxies_cfg = {"http": proxy_url, "https": proxy_url}
+    start = time.time()
+    try:
+        r = requests.get(
+            "http://ip-api.com/json/?fields=countryCode",
+            proxies=proxies_cfg,
+            timeout=6,
+            headers={"User-Agent": UA},
+        )
+        latency_ms = int((time.time() - start) * 1000)
+        if r.status_code == 200 and r.json().get("countryCode") == country_code:
+            return {**proxy, "alive": True, "latency_ms": latency_ms}
+    except Exception:
+        pass
+    return {**proxy, "alive": False, "latency_ms": 99999}
+
+
+def check_ip_quality(ip):
+    ipinfo = {}
+    scam = {"score": 50, "datacenter": "Unknown", "blacklists": 0}
+    try:
+        r = requests.get(f"https://ipinfo.io/{ip}/json", headers={"User-Agent": UA}, timeout=10)
+        if r.status_code == 200:
+            ipinfo = r.json()
+    except Exception:
+        pass
+
+    try:
+        r = requests.get(f"https://scamalytics.com/ip/{ip}", headers={"User-Agent": UA}, timeout=12)
+        if r.status_code == 200:
+            soup = BeautifulSoup(r.text, "html.parser")
+            m = re.search(r"Fraud Score:\s*(\d+)", soup.get_text(" ", strip=True))
+            score = int(m.group(1)) if m else 50
+            fields = {}
+            for tr in soup.select("table tr"):
+                cols = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
+                if len(cols) >= 2:
+                    fields[cols[0]] = cols[1]
+            bl = sum(
+                1 for k, v in fields.items()
+                if v == "Yes" and k not in (
+                    "Datacenter", "Public Proxy", "Anonymizing VPN",
+                    "Tor Exit Node", "Web Proxy", "Search Engine Robot"
+                )
+            )
+            scam = {
+                "score": score,
+                "datacenter": fields.get("Datacenter", "Unknown"),
+                "blacklists": bl,
+            }
+    except Exception:
+        pass
+
+    return ipinfo, scam
+
+
+def build_clash_yaml(country_code, selected):
+    proxies = []
+    names = []
+    for idx, item in enumerate(selected, 1):
+        org_short = re.sub(r"[^A-Za-z0-9]+", "", item.get("org_name", country_code))[:14] or country_code
+        proto_tag = item["type"].upper()
+        name = f"{country_code}-{idx:02d}-{org_short}-{proto_tag}"
+        names.append(name)
+        node = {
+            "name": name,
+            "type": "socks5" if item["type"] == "socks5" else "http",
+            "server": item["ip"],
+            "port": item["port"],
+        }
+        if item["type"] == "https":
+            node["tls"] = True
+            node["skip-cert-verify"] = True
+        proxies.append(node)
+
+    cfg = {
+        "mixed-port": 7890,
+        "allow-lan": False,
+        "mode": "rule",
+        "log-level": "info",
+        "unified-delay": True,
+        "proxies": proxies,
+        "proxy-groups": [
+            {
+                "name": f"{country_code}-Select",
+                "type": "select",
+                "proxies": [f"{country_code}-Auto"] + names + ["DIRECT"],
+            },
+            {
+                "name": f"{country_code}-Auto",
+                "type": "url-test",
+                "url": "http://www.gstatic.com/generate_204",
+                "interval": 300,
+                "tolerance": 50,
+                "proxies": names,
+            },
+        ],
+        "rules": [f"MATCH,{country_code}-Select"],
     }
-    return new Response(await res.text(), {
-      headers: {
-        "content-type": "text/yaml; charset=utf-8",
-        "profile-update-interval": "12",
-        "content-disposition": 'attachment; filename="' + name + '"',
-        "cache-control": "public, max-age=600"
-      }
-    });
-  }
-};
+    return yaml.safe_dump(cfg, sort_keys=False, allow_unicode=True)
+
+
+def run_for_country(country_code, output_file):
+    pool, seen = [], set()
+    fetch_freeproxy_world(country_code, pool, seen, max_pages=5)
+    fetch_proxyscrape(country_code, pool, seen)
+    fetch_free_proxy_list(country_code, pool, seen)
+    fetch_spys_one(country_code, pool, seen)
+
+    print(f"[{country_code}] Total unique proxies fetched: {len(pool)}")
+    if not pool:
+        print(f"[{country_code}] No proxies fetched; skipping.")
+        return
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=25) as ex:
+        tested = list(ex.map(lambda p: test_connectivity(country_code, p), pool[:250]))
+
+    alive = [p for p in tested if p["alive"]]
+    print(f"[{country_code}] Live proxies verified: {len(alive)}")
+
+    use_pool = alive if len(alive) >= 10 else pool
+
+    best_by_ip = {}
+    proto_rank = {"socks5": 0, "https": 1, "http": 2}
+    for p in sorted(use_pool, key=lambda x: (0 if x["anonymity"] == "High" else 1, proto_rank.get(x["type"], 9), x.get("latency_ms", 99999))):
+        if p["ip"] not in best_by_ip:
+            best_by_ip[p["ip"]] = p
+
+    candidates = list(best_by_ip.values())[:35]
+    isp_keywords = ISP_KEYWORDS_BY_COUNTRY.get(country_code, ())
+
+    enriched = []
+    for p in candidates:
+        ipinfo, scam = check_ip_quality(p["ip"])
+        if ipinfo.get("country") and ipinfo.get("country") != country_code:
+            continue
+        org = ipinfo.get("org", "")
+        org_lower = org.lower()
+        is_isp = (scam["datacenter"] == "No") or any(k in org_lower for k in isp_keywords)
+        enriched.append({
+            **p,
+            "org_name": org.split(" ", 1)[1] if " " in org else org,
+            "is_isp": is_isp,
+            "score": scam["score"],
+            "blacklists": scam["blacklists"],
+        })
+
+    enriched.sort(key=lambda x: (
+        0 if x["score"] <= 15 else 1,
+        0 if x["is_isp"] else 1,
+        x["score"],
+        x["blacklists"],
+        0 if x["anonymity"] == "High" else 1,
+        x.get("latency_ms", 99999),
+    ))
+
+    top10 = enriched[:10]
+    if len(top10) < 3:
+        print(f"[{country_code}] Too few valid proxies ({len(top10)}); keeping existing {output_file}.")
+        return
+
+    yaml_text = build_clash_yaml(country_code, top10)
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(yaml_text)
+    print(f"[{country_code}] Successfully wrote {len(top10)} proxies to {output_file}")
+
+
+def main():
+    for country_code, output_file in TARGETS:
+        run_for_country(country_code, output_file)
+
+
+if __name__ == "__main__":
+    main()
