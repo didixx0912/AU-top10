@@ -30,7 +30,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git git add au_top10_clash.yaml cn_top10_clash.yaml
+          git add au_top10_clash.yaml cn_top10_clash.yaml
           if git diff --staged --quiet; then
             echo "No changes to au_top10_clash.yaml"
           else
