@@ -12,43 +12,43 @@ proxies:
   type: socks5
   server: 103.248.47.230
   port: 1080
-- name: AU-03-AussieFibrePty-SOCKS5
+- name: AU-03-AAPTLimited-HTTP
+  type: http
+  server: 61.29.96.146
+  port: 8000
+- name: AU-04-AussieFibrePty-SOCKS5
   type: socks5
   server: 159.196.163.64
   port: 80
-- name: AU-04-OracleCorporat-SOCKS5
-  type: socks5
-  server: 168.138.9.147
-  port: 1080
-- name: AU-05-MicrosoftCorpo-HTTPS
+- name: AU-05-OracleCorporat-HTTP
+  type: http
+  server: 130.162.192.208
+  port: 8080
+- name: AU-06-MicrosoftCorpo-HTTPS
   type: http
   server: 4.198.140.211
   port: 443
   tls: true
   skip-cert-verify: true
-- name: AU-06-GSLNetworksPty-HTTPS
+- name: AU-07-GSLNetworksPty-HTTPS
   type: http
   server: 103.62.50.130
   port: 443
   tls: true
   skip-cert-verify: true
-- name: AU-07-HostedNetworkP-HTTPS
+- name: AU-08-HostedNetworkP-HTTPS
   type: http
   server: 203.31.65.32
   port: 443
   tls: true
   skip-cert-verify: true
-- name: AU-08-CloudflareLond-HTTP
-  type: http
-  server: 103.169.142.43
-  port: 80
 - name: AU-09-CloudflareLond-HTTP
   type: http
-  server: 192.65.217.81
+  server: 103.169.142.164
   port: 80
 - name: AU-10-CloudflareLond-HTTP
   type: http
-  server: 103.169.142.28
+  server: 103.169.142.245
   port: 80
 proxy-groups:
 - name: AU-Select
@@ -57,12 +57,12 @@ proxy-groups:
   - AU-Auto
   - AU-01-IntervolvePtyL-HTTP
   - AU-02-DickerDataLtd-SOCKS5
-  - AU-03-AussieFibrePty-SOCKS5
-  - AU-04-OracleCorporat-SOCKS5
-  - AU-05-MicrosoftCorpo-HTTPS
-  - AU-06-GSLNetworksPty-HTTPS
-  - AU-07-HostedNetworkP-HTTPS
-  - AU-08-CloudflareLond-HTTP
+  - AU-03-AAPTLimited-HTTP
+  - AU-04-AussieFibrePty-SOCKS5
+  - AU-05-OracleCorporat-HTTP
+  - AU-06-MicrosoftCorpo-HTTPS
+  - AU-07-GSLNetworksPty-HTTPS
+  - AU-08-HostedNetworkP-HTTPS
   - AU-09-CloudflareLond-HTTP
   - AU-10-CloudflareLond-HTTP
   - DIRECT
@@ -74,12 +74,12 @@ proxy-groups:
   proxies:
   - AU-01-IntervolvePtyL-HTTP
   - AU-02-DickerDataLtd-SOCKS5
-  - AU-03-AussieFibrePty-SOCKS5
-  - AU-04-OracleCorporat-SOCKS5
-  - AU-05-MicrosoftCorpo-HTTPS
-  - AU-06-GSLNetworksPty-HTTPS
-  - AU-07-HostedNetworkP-HTTPS
-  - AU-08-CloudflareLond-HTTP
+  - AU-03-AAPTLimited-HTTP
+  - AU-04-AussieFibrePty-SOCKS5
+  - AU-05-OracleCorporat-HTTP
+  - AU-06-MicrosoftCorpo-HTTPS
+  - AU-07-GSLNetworksPty-HTTPS
+  - AU-08-HostedNetworkP-HTTPS
   - AU-09-CloudflareLond-HTTP
   - AU-10-CloudflareLond-HTTP
 rules:
