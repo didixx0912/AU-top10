@@ -4,67 +4,69 @@ mode: rule
 log-level: info
 unified-delay: true
 proxies:
-- name: CN-01-CHINAUNICOMChi-HTTP
-  type: http
-  server: 153.0.171.163
-  port: 8085
-- name: CN-02-CHINAUNICOMChi-HTTP
-  type: http
-  server: 221.210.103.34
-  port: 8182
-- name: CN-03-ChinaTelecomGr-HTTPS
-  type: http
-  server: 180.166.128.182
-  port: 13010
-  tls: true
-  skip-cert-verify: true
-- name: CN-04-CHINAUNICOMChi-HTTP
+- name: CN-01-浙江杭州-联通-HTTP
   type: http
   server: 101.66.195.58
   port: 8085
-- name: CN-05-CHINANETBACKBO-HTTPS
+- name: CN-02-黑龙江哈尔滨-联通-HTTP
+  type: http
+  server: 221.210.103.34
+  port: 8182
+- name: CN-03-海南海口-联通-HTTP
+  type: http
+  server: 153.0.171.163
+  port: 8085
+- name: CN-04-上海-电信-HTTPS
+  type: http
+  server: 180.166.128.182
+  port: 24001
+  tls: true
+  skip-cert-verify: true
+- name: CN-05-江苏南京-电信-HTTPS
   type: http
   server: 117.82.138.100
   port: 1080
   tls: true
   skip-cert-verify: true
-- name: CN-06-ASNumberforCHI-HTTPS
+- name: CN-06-安徽合肥-电信-HTTP
+  type: http
+  server: 183.162.197.197
+  port: 8060
+- name: CN-07-江苏Changzhou-电信-HTTPS
   type: http
   server: 118.184.157.67
   port: 4443
   tls: true
   skip-cert-verify: true
-- name: CN-07-ChinaMobileCom-SOCKS5
-  type: socks5
-  server: 221.176.85.234
-  port: 1080
-- name: CN-08-ASNumberforCHI-HTTP
+- name: CN-08-广东广州-电信-HTTPS
+  type: http
+  server: 14.29.168.215
+  port: 10443
+  tls: true
+  skip-cert-verify: true
+- name: CN-09-上海-电信-HTTP
   type: http
   server: 103.213.97.78
   port: 80
-- name: CN-09-ChinaMobileCom-HTTP
-  type: http
-  server: 39.129.25.66
-  port: 8060
-- name: CN-10-CHINANETGuangd-HTTP
-  type: http
-  server: 36.111.33.167
-  port: 13128
+- name: CN-10-江苏南京-电信-SOCKS5
+  type: socks5
+  server: 49.82.173.106
+  port: 8989
 proxy-groups:
 - name: CN-Select
   type: select
   proxies:
   - CN-Auto
-  - CN-01-CHINAUNICOMChi-HTTP
-  - CN-02-CHINAUNICOMChi-HTTP
-  - CN-03-ChinaTelecomGr-HTTPS
-  - CN-04-CHINAUNICOMChi-HTTP
-  - CN-05-CHINANETBACKBO-HTTPS
-  - CN-06-ASNumberforCHI-HTTPS
-  - CN-07-ChinaMobileCom-SOCKS5
-  - CN-08-ASNumberforCHI-HTTP
-  - CN-09-ChinaMobileCom-HTTP
-  - CN-10-CHINANETGuangd-HTTP
+  - CN-01-浙江杭州-联通-HTTP
+  - CN-02-黑龙江哈尔滨-联通-HTTP
+  - CN-03-海南海口-联通-HTTP
+  - CN-04-上海-电信-HTTPS
+  - CN-05-江苏南京-电信-HTTPS
+  - CN-06-安徽合肥-电信-HTTP
+  - CN-07-江苏Changzhou-电信-HTTPS
+  - CN-08-广东广州-电信-HTTPS
+  - CN-09-上海-电信-HTTP
+  - CN-10-江苏南京-电信-SOCKS5
   - DIRECT
 - name: CN-Auto
   type: url-test
@@ -72,15 +74,15 @@ proxy-groups:
   interval: 300
   tolerance: 50
   proxies:
-  - CN-01-CHINAUNICOMChi-HTTP
-  - CN-02-CHINAUNICOMChi-HTTP
-  - CN-03-ChinaTelecomGr-HTTPS
-  - CN-04-CHINAUNICOMChi-HTTP
-  - CN-05-CHINANETBACKBO-HTTPS
-  - CN-06-ASNumberforCHI-HTTPS
-  - CN-07-ChinaMobileCom-SOCKS5
-  - CN-08-ASNumberforCHI-HTTP
-  - CN-09-ChinaMobileCom-HTTP
-  - CN-10-CHINANETGuangd-HTTP
+  - CN-01-浙江杭州-联通-HTTP
+  - CN-02-黑龙江哈尔滨-联通-HTTP
+  - CN-03-海南海口-联通-HTTP
+  - CN-04-上海-电信-HTTPS
+  - CN-05-江苏南京-电信-HTTPS
+  - CN-06-安徽合肥-电信-HTTP
+  - CN-07-江苏Changzhou-电信-HTTPS
+  - CN-08-广东广州-电信-HTTPS
+  - CN-09-上海-电信-HTTP
+  - CN-10-江苏南京-电信-SOCKS5
 rules:
 - MATCH,CN-Select
