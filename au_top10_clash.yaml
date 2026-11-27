@@ -34,16 +34,16 @@ proxies:
   type: http
   server: 210.8.69.103
   port: 808
-- name: AU-07-Sydney-AmazoncomInc-HTTPS
-  type: http
-  server: 16.176.232.186
-  port: 11604
-  tls: true
-  skip-cert-verify: true
-- name: AU-08-Sydney-5GNETWORKOPE-HTTPS
+- name: AU-07-Sydney-5GNETWORKOPE-HTTPS
   type: http
   server: 103.77.232.74
   port: 9443
+  tls: true
+  skip-cert-verify: true
+- name: AU-08-Sydney-AmazoncomInc-HTTPS
+  type: http
+  server: 3.26.199.107
+  port: 51916
   tls: true
   skip-cert-verify: true
 - name: AU-09-Sydney-OracleCorpor-HTTPS
@@ -69,8 +69,8 @@ proxy-groups:
   - AU-04-Melbourne-HostedNetwor-HTTPS
   - AU-05-Brisbane-GSLNetworksP-HTTPS
   - AU-06-Adelaide-Escapenet-HTTP
-  - AU-07-Sydney-AmazoncomInc-HTTPS
-  - AU-08-Sydney-5GNETWORKOPE-HTTPS
+  - AU-07-Sydney-5GNETWORKOPE-HTTPS
+  - AU-08-Sydney-AmazoncomInc-HTTPS
   - AU-09-Sydney-OracleCorpor-HTTPS
   - AU-10-Sydney-OracleCorpor-HTTPS
   - DIRECT
@@ -86,8 +86,8 @@ proxy-groups:
   - AU-04-Melbourne-HostedNetwor-HTTPS
   - AU-05-Brisbane-GSLNetworksP-HTTPS
   - AU-06-Adelaide-Escapenet-HTTP
-  - AU-07-Sydney-AmazoncomInc-HTTPS
-  - AU-08-Sydney-5GNETWORKOPE-HTTPS
+  - AU-07-Sydney-5GNETWORKOPE-HTTPS
+  - AU-08-Sydney-AmazoncomInc-HTTPS
   - AU-09-Sydney-OracleCorpor-HTTPS
   - AU-10-Sydney-OracleCorpor-HTTPS
 rules:
