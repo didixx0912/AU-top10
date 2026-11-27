@@ -4,10 +4,10 @@ mode: rule
 log-level: info
 unified-delay: true
 proxies:
-- name: AU-01-Melbourne-IntervolvePt-HTTP
-  type: http
-  server: 114.111.151.41
-  port: 80
+- name: AU-01-Sydney-DickerDataLt-SOCKS5
+  type: socks5
+  server: 103.248.47.230
+  port: 1080
 - name: AU-02-Melbourne-AussieFibreP-HTTP
   type: http
   server: 159.196.182.72
@@ -40,22 +40,22 @@ proxies:
   port: 9443
   tls: true
   skip-cert-verify: true
-- name: AU-08-Sydney-AmazoncomInc-HTTPS
-  type: http
-  server: 3.26.199.107
-  port: 51916
-  tls: true
-  skip-cert-verify: true
-- name: AU-09-Sydney-OracleCorpor-HTTPS
+- name: AU-08-Sydney-OracleCorpor-HTTPS
   type: http
   server: 140.238.205.29
   port: 443
   tls: true
   skip-cert-verify: true
-- name: AU-10-Sydney-OracleCorpor-HTTPS
+- name: AU-09-Sydney-OracleCorpor-HTTPS
   type: http
   server: 140.238.207.23
   port: 443
+  tls: true
+  skip-cert-verify: true
+- name: AU-10-Brisbane-5GNETWORKOPE-HTTPS
+  type: http
+  server: 103.108.95.226
+  port: 9443
   tls: true
   skip-cert-verify: true
 proxy-groups:
@@ -63,16 +63,16 @@ proxy-groups:
   type: select
   proxies:
   - AU-Auto
-  - AU-01-Melbourne-IntervolvePt-HTTP
+  - AU-01-Sydney-DickerDataLt-SOCKS5
   - AU-02-Melbourne-AussieFibreP-HTTP
   - AU-03-Melbourne-MicrosoftCor-HTTPS
   - AU-04-Melbourne-HostedNetwor-HTTPS
   - AU-05-Brisbane-GSLNetworksP-HTTPS
   - AU-06-Adelaide-Escapenet-HTTP
   - AU-07-Sydney-5GNETWORKOPE-HTTPS
-  - AU-08-Sydney-AmazoncomInc-HTTPS
+  - AU-08-Sydney-OracleCorpor-HTTPS
   - AU-09-Sydney-OracleCorpor-HTTPS
-  - AU-10-Sydney-OracleCorpor-HTTPS
+  - AU-10-Brisbane-5GNETWORKOPE-HTTPS
   - DIRECT
 - name: AU-Auto
   type: url-test
@@ -80,15 +80,15 @@ proxy-groups:
   interval: 300
   tolerance: 50
   proxies:
-  - AU-01-Melbourne-IntervolvePt-HTTP
+  - AU-01-Sydney-DickerDataLt-SOCKS5
   - AU-02-Melbourne-AussieFibreP-HTTP
   - AU-03-Melbourne-MicrosoftCor-HTTPS
   - AU-04-Melbourne-HostedNetwor-HTTPS
   - AU-05-Brisbane-GSLNetworksP-HTTPS
   - AU-06-Adelaide-Escapenet-HTTP
   - AU-07-Sydney-5GNETWORKOPE-HTTPS
-  - AU-08-Sydney-AmazoncomInc-HTTPS
+  - AU-08-Sydney-OracleCorpor-HTTPS
   - AU-09-Sydney-OracleCorpor-HTTPS
-  - AU-10-Sydney-OracleCorpor-HTTPS
+  - AU-10-Brisbane-5GNETWORKOPE-HTTPS
 rules:
 - MATCH,AU-Select

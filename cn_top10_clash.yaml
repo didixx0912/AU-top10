@@ -4,14 +4,14 @@ mode: rule
 log-level: info
 unified-delay: true
 proxies:
-- name: CN-01-黑龙江哈尔滨-联通-HTTP
-  type: http
-  server: 221.210.103.34
-  port: 8182
-- name: CN-02-海南海口-联通-HTTP
+- name: CN-01-海南海口-联通-HTTP
   type: http
   server: 153.0.171.163
   port: 8085
+- name: CN-02-黑龙江哈尔滨-联通-HTTP
+  type: http
+  server: 221.210.103.34
+  port: 8182
 - name: CN-03-浙江杭州-联通-HTTP
   type: http
   server: 101.66.195.58
@@ -22,49 +22,49 @@ proxies:
   port: 11200
   tls: true
   skip-cert-verify: true
-- name: CN-05-江苏南京-电信-HTTPS
+- name: CN-05-安徽合肥-电信-HTTP
   type: http
-  server: 117.82.138.100
-  port: 1080
-  tls: true
-  skip-cert-verify: true
+  server: 183.162.197.197
+  port: 8060
 - name: CN-06-江苏Changzhou-电信-HTTPS
   type: http
   server: 118.184.157.67
   port: 4443
   tls: true
   skip-cert-verify: true
-- name: CN-07-云南昆明-移动-HTTP
+- name: CN-07-江苏南京-电信-HTTPS
   type: http
-  server: 39.129.25.66
-  port: 8060
-- name: CN-08-湖北武汉-联通-SOCKS5
-  type: socks5
-  server: 58.19.233.33
+  server: 117.82.138.100
   port: 1080
-- name: CN-09-山东济南-联通-HTTP
+  tls: true
+  skip-cert-verify: true
+- name: CN-08-上海-电信-HTTP
   type: http
-  server: 124.128.149.84
-  port: 8090
-- name: CN-10-上海-联通-HTTP
+  server: 103.213.97.78
+  port: 80
+- name: CN-09-辽宁沈阳-联通-SOCKS5
+  type: socks5
+  server: 221.202.27.194
+  port: 10806
+- name: CN-10-陕西Xi’an-联通-HTTP
   type: http
-  server: 112.65.132.181
-  port: 3128
+  server: 123.139.36.43
+  port: 8118
 proxy-groups:
 - name: CN-Select
   type: select
   proxies:
   - CN-Auto
-  - CN-01-黑龙江哈尔滨-联通-HTTP
-  - CN-02-海南海口-联通-HTTP
+  - CN-01-海南海口-联通-HTTP
+  - CN-02-黑龙江哈尔滨-联通-HTTP
   - CN-03-浙江杭州-联通-HTTP
   - CN-04-上海-电信-HTTPS
-  - CN-05-江苏南京-电信-HTTPS
+  - CN-05-安徽合肥-电信-HTTP
   - CN-06-江苏Changzhou-电信-HTTPS
-  - CN-07-云南昆明-移动-HTTP
-  - CN-08-湖北武汉-联通-SOCKS5
-  - CN-09-山东济南-联通-HTTP
-  - CN-10-上海-联通-HTTP
+  - CN-07-江苏南京-电信-HTTPS
+  - CN-08-上海-电信-HTTP
+  - CN-09-辽宁沈阳-联通-SOCKS5
+  - CN-10-陕西Xi’an-联通-HTTP
   - DIRECT
 - name: CN-Auto
   type: url-test
@@ -72,15 +72,15 @@ proxy-groups:
   interval: 300
   tolerance: 50
   proxies:
-  - CN-01-黑龙江哈尔滨-联通-HTTP
-  - CN-02-海南海口-联通-HTTP
+  - CN-01-海南海口-联通-HTTP
+  - CN-02-黑龙江哈尔滨-联通-HTTP
   - CN-03-浙江杭州-联通-HTTP
   - CN-04-上海-电信-HTTPS
-  - CN-05-江苏南京-电信-HTTPS
+  - CN-05-安徽合肥-电信-HTTP
   - CN-06-江苏Changzhou-电信-HTTPS
-  - CN-07-云南昆明-移动-HTTP
-  - CN-08-湖北武汉-联通-SOCKS5
-  - CN-09-山东济南-联通-HTTP
-  - CN-10-上海-联通-HTTP
+  - CN-07-江苏南京-电信-HTTPS
+  - CN-08-上海-电信-HTTP
+  - CN-09-辽宁沈阳-联通-SOCKS5
+  - CN-10-陕西Xi’an-联通-HTTP
 rules:
 - MATCH,CN-Select
