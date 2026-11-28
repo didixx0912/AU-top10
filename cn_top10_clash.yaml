@@ -16,40 +16,38 @@ proxies:
   type: http
   server: 101.66.195.58
   port: 8085
-- name: CN-04-上海-电信-HTTPS
-  type: http
-  server: 180.166.128.182
-  port: 11200
-  tls: true
-  skip-cert-verify: true
-- name: CN-05-安徽合肥-电信-HTTP
-  type: http
-  server: 183.162.197.197
-  port: 8060
-- name: CN-06-江苏Changzhou-电信-HTTPS
+- name: CN-04-江苏Changzhou-电信-HTTPS
   type: http
   server: 118.184.157.67
   port: 4443
   tls: true
   skip-cert-verify: true
-- name: CN-07-江苏南京-电信-HTTPS
+- name: CN-05-上海-电信-HTTPS
   type: http
-  server: 117.82.138.100
-  port: 1080
+  server: 180.166.128.182
+  port: 11200
   tls: true
   skip-cert-verify: true
-- name: CN-08-上海-电信-HTTP
+- name: CN-06-浙江杭州-移动-HTTP
   type: http
-  server: 103.213.97.78
-  port: 80
-- name: CN-09-辽宁沈阳-联通-SOCKS5
+  server: 39.172.97.192
+  port: 8060
+- name: CN-07-云南昆明-移动-HTTP
+  type: http
+  server: 39.129.25.66
+  port: 8060
+- name: CN-08-辽宁沈阳-联通-SOCKS5
   type: socks5
   server: 221.202.27.194
   port: 10806
-- name: CN-10-陕西Xi’an-联通-HTTP
+- name: CN-09-重庆-联通-HTTP
   type: http
-  server: 123.139.36.43
-  port: 8118
+  server: 113.204.79.230
+  port: 9091
+- name: CN-10-重庆-ChongqingTel-SOCKS5
+  type: socks5
+  server: 113.249.111.67
+  port: 1080
 proxy-groups:
 - name: CN-Select
   type: select
@@ -58,13 +56,13 @@ proxy-groups:
   - CN-01-海南海口-联通-HTTP
   - CN-02-黑龙江哈尔滨-联通-HTTP
   - CN-03-浙江杭州-联通-HTTP
-  - CN-04-上海-电信-HTTPS
-  - CN-05-安徽合肥-电信-HTTP
-  - CN-06-江苏Changzhou-电信-HTTPS
-  - CN-07-江苏南京-电信-HTTPS
-  - CN-08-上海-电信-HTTP
-  - CN-09-辽宁沈阳-联通-SOCKS5
-  - CN-10-陕西Xi’an-联通-HTTP
+  - CN-04-江苏Changzhou-电信-HTTPS
+  - CN-05-上海-电信-HTTPS
+  - CN-06-浙江杭州-移动-HTTP
+  - CN-07-云南昆明-移动-HTTP
+  - CN-08-辽宁沈阳-联通-SOCKS5
+  - CN-09-重庆-联通-HTTP
+  - CN-10-重庆-ChongqingTel-SOCKS5
   - DIRECT
 - name: CN-Auto
   type: url-test
@@ -75,12 +73,12 @@ proxy-groups:
   - CN-01-海南海口-联通-HTTP
   - CN-02-黑龙江哈尔滨-联通-HTTP
   - CN-03-浙江杭州-联通-HTTP
-  - CN-04-上海-电信-HTTPS
-  - CN-05-安徽合肥-电信-HTTP
-  - CN-06-江苏Changzhou-电信-HTTPS
-  - CN-07-江苏南京-电信-HTTPS
-  - CN-08-上海-电信-HTTP
-  - CN-09-辽宁沈阳-联通-SOCKS5
-  - CN-10-陕西Xi’an-联通-HTTP
+  - CN-04-江苏Changzhou-电信-HTTPS
+  - CN-05-上海-电信-HTTPS
+  - CN-06-浙江杭州-移动-HTTP
+  - CN-07-云南昆明-移动-HTTP
+  - CN-08-辽宁沈阳-联通-SOCKS5
+  - CN-09-重庆-联通-HTTP
+  - CN-10-重庆-ChongqingTel-SOCKS5
 rules:
 - MATCH,CN-Select
